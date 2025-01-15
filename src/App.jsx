@@ -1,35 +1,38 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState } from "react";
+import ImageUploader from "./components/ImageUploader";
+import SudokuDisplay from "./components/SudokuDisplay";
+import { solveSudoku } from "./utils/sudokuSolver";
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  const [sudoku, setSudoku] = useState(null);
+  const [solution, setSolution] = useState(null);
+
+  const handleExtract = (grid) => {
+    setSudoku(grid);
+    setSolution(null);
+  };
+
+  const handleSolve = () => {
+    const solved = [...sudoku.map((row) => [...row])];
+    setSolution(solveSudoku(solved));
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div>
+      <h1>Sudoku Solver</h1>
+      <ImageUploader onExtract={handleExtract} />
+      {sudoku && <SudokuDisplay board={sudoku} />}
+      {sudoku && (
+        <button onClick={handleSolve}>Solve</button>
+      )}
+      {solution && (
+        <>
+          <h2>Solution:</h2>
+          <SudokuDisplay board={solution} />
+        </>
+      )}
+    </div>
+  );
+};
 
-export default App
+export default App;
