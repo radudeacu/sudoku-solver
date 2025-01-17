@@ -27,19 +27,20 @@ const ImageUploader = ({ onExtract }) => {
       canvas.height = image.height;
       ctx.drawImage(image, 0, 0, image.width, image.height);
   
-      // Preprocessing: Convert to grayscale
+      // Preprocessing: Convert to grayscale and increase contrast
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const data = imageData.data;
       for (let i = 0; i < data.length; i += 4) {
         const gray = data[i] * 0.3 + data[i + 1] * 0.59 + data[i + 2] * 0.11;
-        data[i] = data[i + 1] = data[i + 2] = gray;
+        data[i] = data[i + 1] = data[i + 2] = gray > 128 ? 255 : 0; // Binarize
       }
       ctx.putImageData(imageData, 0, 0);
   
       Tesseract.recognize(canvas.toDataURL(), "eng", { logger: (info) => console.log(info) })
         .then(({ data: { text } }) => {
           const extractedNumbers = processTextToSudoku(text);
-          onExtract(extractedNumbers);
+          console.log("Extracted Sudoku Grid:", extractedNumbers);
+          setGrid(extractedNumbers); // Update grid
         })
         .catch(console.error)
         .finally(() => setLoading(false));
