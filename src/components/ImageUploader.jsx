@@ -47,22 +47,30 @@ const ImageUploader = ({ onExtract }) => {
   };
 
   const processTextToSudoku = (text) => {
-    const lines = text.split("\n").filter(Boolean); // Split text into lines and remove empty ones
+    console.log("Raw OCR Output:", text);
+  
+    const lines = text.split("\n").filter(Boolean);
     const grid = [];
   
     lines.forEach((line) => {
       const digits = line.replace(/[^1-9]/g, ""); // Extract only valid digits
+      console.log("Processed Line:", digits); // Debug each processed line
       if (digits.length === 9) {
-        grid.push(digits.split(""));
+        grid.push(digits.split("").map((num) => parseInt(num, 10)));
       }
     });
   
-    // Ensure the grid is 9x9
-    while (grid.length < 9) grid.push(Array(9).fill("."));
+    console.log("Extracted Grid Before Validation:", grid);
   
-    return grid.length === 9 && grid.every((row) => row.length === 9)
+    // Ensure the grid is 9x9
+    while (grid.length < 9) grid.push(Array(9).fill(0));
+  
+    const validatedGrid = grid.length === 9 && grid.every((row) => row.length === 9)
       ? grid
-      : Array(9).fill(Array(9).fill("."));
+      : Array(9).fill(Array(9).fill(0));
+  
+    console.log("Validated Grid:", validatedGrid);
+    return validatedGrid;
   };
 
   return (
