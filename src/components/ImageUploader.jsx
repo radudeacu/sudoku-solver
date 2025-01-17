@@ -27,12 +27,22 @@ const ImageUploader = ({ onExtract }) => {
   };
 
   const processTextToSudoku = (text) => {
-    const lines = text.split("\n").filter(Boolean);
-    // Process text to extract Sudoku grid as an array of arrays
-    const grid = lines.map((line) =>
-      line.replace(/[^1-9.]/g, "").padEnd(9, ".").split("")
-    );
-    return grid;
+    const lines = text.split("\n").filter(Boolean); // Split text into lines and remove empty ones
+    const grid = [];
+  
+    lines.forEach((line) => {
+      const digits = line.replace(/[^1-9]/g, ""); // Extract only valid digits
+      if (digits.length === 9) {
+        grid.push(digits.split(""));
+      }
+    });
+  
+    // Ensure the grid is 9x9
+    while (grid.length < 9) grid.push(Array(9).fill("."));
+  
+    return grid.length === 9 && grid.every((row) => row.length === 9)
+      ? grid
+      : Array(9).fill(Array(9).fill("."));
   };
 
   return (
