@@ -15,15 +15,35 @@ const ImageUploader = ({ onExtract }) => {
 
   const extractText = (file) => {
     setLoading(true);
-    Tesseract.recognize(file, "eng", {
-      logger: (info) => console.log(info), // Logs OCR progress
-    })
-      .then(({ data: { text } }) => {
-        const extractedNumbers = processTextToSudoku(text);
-        onExtract(extractedNumbers);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+  
+    const image = new Image();
+    image.src = URL.createObjectURL(file);
+  
+    image.onload = () => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+  
+      canvas.width = image.width;
+      canvas.height = image.height;
+      ctx.drawImage(image, 0, 0, image.width, image.height);
+  
+      // Preprocessing: Convert to grayscale
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+      for (let i = 0; i < data.length; i += 4) {
+        const gray = data[i] * 0.3 + data[i + 1] * 0.59 + data[i + 2] * 0.11;
+        data[i] = data[i + 1] = data[i + 2] = gray;
+      }
+      ctx.putImageData(imageData, 0, 0);
+  
+      Tesseract.recognize(canvas.toDataURL(), "eng", { logger: (info) => console.log(info) })
+        .then(({ data: { text } }) => {
+          const extractedNumbers = processTextToSudoku(text);
+          onExtract(extractedNumbers);
+        })
+        .catch(console.error)
+        .finally(() => setLoading(false));
+    };
   };
 
   const processTextToSudoku = (text) => {
