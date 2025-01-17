@@ -13,10 +13,14 @@ const App = () => {
   };
 
   const handleSolve = () => {
-    const solved = [...sudoku.map((row) => [...row])];
-    setSolution(solveSudoku(solved));
+    if (grid.every((row) => row.every((cell) => cell === 0))) {
+      alert("The grid is empty or invalid. Please upload a valid Sudoku puzzle image.");
+      return;
+    }
+    const solved = solveSudoku(grid); // Use extracted grid
+    setSolvedGrid(solved);
   };
-
+  
   return (
     <div>
       <h1>Sudoku Solver</h1>
